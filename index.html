@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Progress Bars</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar-container {
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .progress-bar {
+            position: relative;
+            width: 100%;
+            height: 25px;
+            background: #e0e0e0;
+            border-radius: 12.5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #81c784);
+            transition: width 0.3s ease;
+        }
+
+        .subdivisions {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            z-index: 1;
+        }
+
+        .subdivisions span {
+            flex: 1;
+            height: 100%;
+            border-right: 1px solid #ccc;
+        }
+
+        .subdivisions span:last-child {
+            border-right: none;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .controls button {
+            background: #4caf50;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+
+        .controls button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="bars"></div>
+    </div>
+
+    <script>
+        const bars = [
+            { title: '31 Days', total: 31, unit: 'Day', interval: 1, current: new Date().getDate() },
+            { title: '7 Days', total: 7, unit: 'Day', interval: 1, current: new Date().getDay() || 7 },
+            { title: '24 Hours', total: 24, unit: 'Hour', interval: 1, current: new Date().getHours() },
+            { title: '1 Year', total: 365, unit: 'Day', interval: 31, current: Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 1)) / (1000 * 60 * 60 * 24)) },
+        ];
+
+        const barsContainer = document.getElementById('bars');
+
+        bars.forEach((bar, index) => {
+            const container = document.createElement('div');
+            container.classList.add('progress-bar-container');
+
+            container.innerHTML = `
+                <div class="title">${bar.title}</div>
+                <div class="progress-bar">
+                    <div class="progress-bar-inner" id="progress-bar-${index}" style="width: ${Math.floor((bar.current / bar.total) * 100)}%;"></div>
+                    <div class="subdivisions">
+                        ${'<span></span>'.repeat(bar.total / bar.interval)}
+                    </div>
+                </div>
+                <div class="progress-info">
+                    <div>${bar.current} / ${bar.total}</div>
+                    <div class="controls">
+                        <button onclick="updateProgress(${index}, -1)">-</button>
+                        <button onclick="updateProgress(${index}, 1)">+</button>
+                        <span id="progress-percent-${index}">${Math.floor((bar.current / bar.total) * 100)}%</span>
+                    </div>
+                </div>
+            `;
+
+            barsContainer.appendChild(container);
+        });
+
+        function updateProgress(index, delta) {
+            const bar = bars[index];
+            bar.current = Math.max(0, Math.min(bar.total, bar.current + delta));
+            const progressElement = document.getElementById(`progress-bar-${index}`);
+            const percentElement = document.getElementById(`progress-percent-${index}`);
+
+            progressElement.style.width = `${Math.floor((bar.current / bar.total) * 100)}%`;
+            percentElement.textContent = `${Math.floor((bar.current / bar.total) * 100)}%`;
+        }
+    </script>
+</body>
+</html>
